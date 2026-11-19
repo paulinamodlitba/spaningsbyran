@@ -46,6 +46,7 @@ h1 em{font-style:normal;color:var(--warm)}
 .meta h2{font-size:20px;line-height:1.3;margin:0;letter-spacing:-.01em}
 .meta .sum{margin:0;color:var(--ink2);font-size:14.5px;max-width:72ch}
 .meta .sub{font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;font-weight:700;color:var(--warm)}
+.stale.bad{background:var(--err);font-weight:600}
 .stale{background:var(--warmbg);border-radius:10px;padding:12px 14px;margin-top:8px;font-size:13.5px;color:var(--ink2)}
 
 .controls{display:flex;flex-wrap:wrap;gap:12px 22px;align-items:flex-end;margin:20px 0 6px}
@@ -150,6 +151,7 @@ footer p{margin:0 0 6px;max-width:72ch}
 .sr-only{position:absolute;left:-9999px}
 .linkbtn{background:none;border:0;padding:0;color:var(--acc);cursor:pointer;text-decoration:underline;font:inherit}
 .keyok{margin:0 0 14px}
+.tidh{margin:10px 0 0;font-weight:600;color:var(--ink2)}
 .status{margin:14px 0 0;padding:12px 14px;border-radius:10px;font-size:14.5px;background:var(--warmbg);color:var(--ink)}
 .status.bad{background:var(--err);font-weight:600}
 .keybox.flash{border-color:var(--warm);box-shadow:0 0 0 1px var(--warm) inset}
@@ -227,6 +229,7 @@ footer p{margin:0 0 6px;max-width:72ch}
       <h2 id="m-subject"></h2>
       <p class="sum" id="m-sum"></p>
       <div class="stale" id="stale" hidden></div>
+      <div class="stale bad" id="failnote" hidden></div>
     </div>
 
     <div class="controls">
@@ -393,6 +396,8 @@ function selectNewsletter(id){
 
 function renderMeta(){
   var d=state.cur;
+  var fn=$("failnote");
+  if(d.failed&&d.failed.list.length){fn.hidden=false;fn.textContent="Det gick inte att skapa inlägg för: "+d.failed.list.join("; ")+". Orsak: "+(d.failed.why||"okänd")+". Ladda upp brevet igen och bocka bara i dessa."}else fn.hidden=true;
   $("del-custom").hidden=!d.custom;
   $("m-date").textContent="Utskick "+fmtLong(d.date);
   $("m-subject").textContent=d.subject;
@@ -614,7 +619,7 @@ function parseNewsletter(html){
   }
   if(!/^\d{4}-\d{2}-\d{2}$/.test(date))date=ymd(new Date());
   var root=doc.querySelector("article,.available-content,.body.markup,main")||doc.body;
-  var secs=[],cur={heading:"Inledning",text:"",links:[]};
+  var secs=[],cur={heading:"Inledning",text:"",links:[],paras:[]};
   function push(){if(cur.text.trim()||cur.links.length)secs.push(cur)}
   function isFakeHeading(n){
     if(n.tagName!=="P")return false;
@@ -625,13 +630,15 @@ function parseNewsletter(html){
     if(n.tagName==="P"&&n.closest("li,blockquote"))return;
     if(n.tagName==="LI"&&n.querySelector("p"))return;
     var tx=n.textContent.replace(/\s+/g," ").trim();if(!tx)return;
-    if(/^H[2-4]$/.test(n.tagName)||isFakeHeading(n)){push();cur={heading:tx,text:"",links:[]};return}
+    if(/^H[2-4]$/.test(n.tagName)||isFakeHeading(n)){push();cur={heading:tx,text:"",links:[],paras:[]};return}
     if(n.tagName==="H1")return;
     cur.text+=(n.tagName==="LI"?"- ":"")+tx+"\n";
+    var para={text:tx,links:[]};cur.paras.push(para);
     n.querySelectorAll("a[href]").forEach(function(a){
       var h=a.getAttribute("href")||"";if(!/^https?:/i.test(h)||SKIP_LINK.test(h))return;
       var lt=a.textContent.replace(/\s+/g," ").trim();
       if(lt&&!cur.links.some(function(l){return l.href===h}))cur.links.push({text:lt,href:h});
+      if(lt&&!para.links.some(function(l){return l.href===h}))para.links.push({text:lt,href:h});
     });
   });
   push();
@@ -640,8 +647,11 @@ function parseNewsletter(html){
 
 function renderSections(){
   var box=$("up-sections");box.textContent="";
+  var prevT=false;
   up.sections.forEach(function(s,i){
-    var long=s.text.length>=400&&!/^(inledning|tidbits)/i.test(s.heading);
+    if(s.tidbit&&!prevT)box.appendChild(el("p",{class:"msg tidh",text:"Tidbits: korta nyheter, en per rad. Bocka i de du vill ha inlägg om."}));
+    prevT=!!s.tidbit;
+    var long=!s.tidbit&&s.text.length>=400&&!/^(inledning|tidbits)/i.test(s.heading);
     var cb=el("input",{type:"checkbox","data-i":String(i)});cb.checked=long;
     cb.addEventListener("change",updateSize);
     box.appendChild(el("label",{class:"sec"},[cb,el("div",null,[el("b",{text:s.heading}),el("span",{text:s.text.length+" tecken"+(s.links.length?" · "+s.links.length+" länkar":"")})])]));
@@ -714,26 +724,48 @@ async function parsePdf(buf){
   var date="",mm=all.match(/\b(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)[A-Z]*\.? (\d{1,2}), (20\d\d)\b/);
   if(mm){var mi=["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"].indexOf(mm[1]);date=mm[3]+"-"+pad(mi+1)+"-"+pad(+mm[2])}
   else{var m2=all.match(/\b(20\d\d-\d{2}-\d{2})\b/);date=m2?m2[1]:ymd(new Date())}
-  var secs=[],cur={heading:"Inledning",text:"",links:[]},prev=null,lastHeading=false;
+  var secs=[],cur={heading:"Inledning",text:"",links:[],paras:[]},prev=null,lastHeading=false,cp=null;
   function push(){if(cur.text.trim())secs.push(cur)}
   for(var k=start;k<lines.length;k++){
     var l=lines[k];
     if(isH(l)){
       if(lastHeading&&prev&&prev.size===l.size)cur.heading+=" "+l.text;
-      else{push();cur={heading:l.text,text:"",links:[]}}
+      else{push();cur={heading:l.text,text:"",links:[],paras:[]};cp=null}
       lastHeading=true;prev=l;continue;
     }
     lastHeading=false;
     var gap=prev&&prev.p===l.p?prev.y-l.y:0;
-    cur.text+=(gap>body*1.9?"\n":" ")+l.text;
-    l.links.forEach(function(u){if(!cur.links.some(function(x){return x.href===u})){var h;try{h=new URL(u).hostname.replace(/^www\./,"")}catch(e){h=u}cur.links.push({text:h,href:u})}});
+    var newPara=!cp||gap>body*1.9;
+    if(newPara){cp={text:"",links:[]};cur.paras.push(cp)}
+    cp.text+=(cp.text?" ":"")+l.text;
+    cur.text+=(newPara?"\n":" ")+l.text;
+    l.links.forEach(function(u){var h;try{h=new URL(u).hostname.replace(/^www\./,"")}catch(e){h=u}var lk={text:h,href:u};
+      if(!cp.links.some(function(x){return x.href===u}))cp.links.push(lk);
+      if(!cur.links.some(function(x){return x.href===u}))cur.links.push(lk)});
     prev=l;
   }
   push();
   return {title:title,date:date,sections:secs,fromPdf:true};
 }
 
+function expandTidbits(secs){
+  var out=[],inT=false;
+  secs.forEach(function(sec){
+    var plain=sec.heading.replace(/^[^\p{L}]+/u,"");
+    if(/tidbit|korta länkar|snabba länkar/i.test(sec.heading))inT=true;
+    else if(inT&&/^(avslut|det var allt|that.?s all|tack för|slutord)/i.test(plain))inT=false;
+    if(!inT){out.push(sec);return}
+    if(/tidbit|korta länkar|snabba länkar/i.test(sec.heading))return;
+    (sec.paras||[]).forEach(function(p){
+      if(p.text.length<120||/^🎁/.test(p.text)||/Liked by|\bReply\b|Pledge your support/i.test(p.text))return;
+      var m=p.text.match(/^(.{20,130}?[.!?:])\s/);
+      out.push({heading:m?m[1]:p.text.slice(0,90)+"…",text:p.text,links:p.links,paras:[],tidbit:true});
+    });
+  });
+  return out;
+}
 function showParsed(){
+  up.sections=expandTidbits(up.sections);
   if(!up.sections.length)throw new Error("Hittade ingen text i filen");
   $("up-meta").textContent="\""+up.title+"\" · "+fmtLong(up.date)+" · "+up.sections.length+" avsnitt hittades. Bocka ur sådant som inte är en trend, som kursinfo eller hälsningar."+(up.fromPdf?" Texten kommer från en PDF, så rubrikerna är gissade utifrån typsnittsstorlek. Kolla att listan stämmer.":"");
   renderSections();$("up-step2").hidden=false;
@@ -859,9 +891,8 @@ function generate(){
     var items=results.filter(Boolean);
     items.forEach(function(it,k){it.id="u"+k});
     if(!items.length){say("up-err","Inga inlägg kunde skapas. Felet var: "+(lastMsg||"okänt")+(/Failed to fetch|NetworkError|Load failed/i.test(lastMsg)?" (kolla internetanslutningen, eller om en brandvägg eller ett tillägg blockerar api.anthropic.com)":""));return}
-    var d={id:"u"+Date.now().toString(36),date:up.date,subject:up.title,label:up.title.slice(0,70),summary:"Inlägg skapade från uppladdat nyhetsbrev.",items:items,custom:true};
+    var d={id:"u"+Date.now().toString(36),date:up.date,subject:up.title,label:up.title.slice(0,70),summary:"Inlägg skapade från uppladdat nyhetsbrev.",items:items,custom:true,failed:failed.length?{list:failed,why:lastMsg}:null};
     var all=loadCustom();all.push(d);saveCustom(all);renderPicker();selectNewsletter(d.id);
-    if(failed.length)toast(failed.length+" trender kunde inte skapas, försök igen med dem");
   }).catch(function(e){setBusy(false);say("up-prog","");say("up-err","Något gick fel: "+e.message)});
 }
 $("up-go").addEventListener("click",generate);
