@@ -1,0 +1,882 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Spaningsbyrån</title>
+<meta name="description" content="Välj ett nyhetsbrev och få färdiga inlägg för LinkedIn, Instagram och Facebook, med en publiceringskalender.">
+<style>
+:root{color-scheme:light;--bg:#f9f9f7;--surf:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--mut:#898781;
+--line:rgba(11,11,11,.10);--axis:#c3c2b7;--acc:#2a78d6;--warm:#eb6834;--warmbg:rgba(235,104,52,.10);--err:#fbe3dc;
+--li:#2a78d6;--ig:#8a5cd6;--fb:#0f8a7e}
+@media(prefers-color-scheme:dark){:root{color-scheme:dark;--bg:#0d0d0d;--surf:#1a1a19;--ink:#fff;--ink2:#c3c2b7;--mut:#898781;
+--line:rgba(255,255,255,.10);--axis:#383835;--acc:#3987e5;--warm:#d95926;--warmbg:rgba(217,89,38,.16);--err:#3a1d15;
+--li:#3987e5;--ig:#a988e6;--fb:#3cc4b4}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+[hidden]{display:none!important}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.wrap{max-width:1000px;margin:0 auto;padding:0 24px}
+
+.hero{padding:44px 0 26px;border-bottom:1px solid var(--line)}
+.hero .wrap{padding-bottom:0}
+.eyebrow{display:block;font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--mut);margin:0 0 14px}
+h1{font-size:clamp(27px,4.4vw,40px);line-height:1.14;margin:0 0 18px;letter-spacing:-.022em;max-width:24ch;font-weight:700}
+h1 em{font-style:normal;color:var(--warm)}
+.lede{color:var(--ink2);margin:0;max-width:68ch;font-size:16.5px}
+
+.step{display:flex;align-items:center;gap:9px;margin:48px 0 14px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.step .n{width:9px;height:9px;border-radius:50%;background:var(--warm);flex:none;font-size:0}
+.step b{font-size:12.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--mut);font-weight:600}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:11px;margin:0;padding:0;list-style:none}
+.card{width:100%;height:100%;text-align:left;background:var(--surf);border:1px solid var(--line);border-radius:12px;padding:15px 15px 13px;cursor:pointer;display:flex;flex-direction:column;gap:5px;transition:border-color .12s}
+.card:hover{border-color:var(--axis)}
+.card[aria-pressed="true"]{border-color:var(--warm);box-shadow:0 0 0 1px var(--warm) inset}
+.card .d{font-size:11.5px;color:var(--mut);letter-spacing:.02em}
+.card[aria-pressed="true"] .d{color:var(--warm);font-weight:600}
+.card .t{font-size:16px;line-height:1.3;font-weight:640;letter-spacing:-.01em}
+.card .c{font-size:12.5px;color:var(--ink2);margin-top:auto;padding-top:6px}
+.picker-note{font-size:12.5px;color:var(--mut);margin:12px 0 0}
+
+.meta{background:var(--surf);border:1px solid var(--line);border-radius:13px;padding:20px;display:grid;gap:6px}
+.meta h2{font-size:20px;line-height:1.3;margin:0;letter-spacing:-.01em}
+.meta .sum{margin:0;color:var(--ink2);font-size:14.5px;max-width:72ch}
+.meta .sub{font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;font-weight:700;color:var(--warm)}
+.stale{background:var(--warmbg);border-radius:10px;padding:12px 14px;margin-top:8px;font-size:13.5px;color:var(--ink2)}
+
+.controls{display:flex;flex-wrap:wrap;gap:12px 22px;align-items:flex-end;margin:20px 0 6px}
+.field{display:grid;gap:5px}
+.field>label,.field>span.l{font-size:11.5px;color:var(--mut);letter-spacing:.02em}
+input[type=date]{background:var(--surf);border:1px solid var(--line);border-radius:9px;padding:7px 10px;min-height:40px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{min-height:40px;display:inline-flex;align-items:center;gap:8px;padding:5px 14px;background:transparent;border:1px solid var(--line);border-radius:20px;cursor:pointer;font-size:14px;font-weight:600;color:var(--mut)}
+.chip .dot{width:9px;height:9px;border-radius:50%;background:var(--pc);opacity:.35}
+.chip[aria-pressed="true"]{color:var(--ink);border-color:var(--pc)}
+.chip[aria-pressed="true"] .dot{opacity:1}
+.btn{min-height:40px;padding:8px 16px;border:0;border-radius:9px;background:transparent;border:1px solid var(--line);color:var(--ink2);font-size:13px;font-weight:600;cursor:pointer}
+.btn:hover{border-color:var(--axis);color:var(--ink)}
+.btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn.primary:hover{opacity:.85;color:var(--bg)}
+.btn.small{min-height:34px;padding:4px 12px}
+.spacer{flex:1}
+
+.tabs{display:flex;gap:4px;margin:22px 0 0;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.tab{font-size:14.5px;font-weight:600;border:0;background:none;color:var(--mut);padding:10px 14px 12px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--warm)}
+.tab[data-tab=linkedin][aria-selected="true"]{border-bottom-color:var(--li)}
+.tab[data-tab=instagram][aria-selected="true"]{border-bottom-color:var(--ig)}
+.tab[data-tab=facebook][aria-selected="true"]{border-bottom-color:var(--fb)}
+.tab .n{font-size:11.5px;font-weight:600;background:var(--line);color:var(--ink2);border-radius:20px;padding:1px 7px;margin-left:6px}
+.trends{display:grid;gap:14px}
+.trend{border-left:3px solid var(--pc)}
+.trend .acts{display:flex;gap:8px;margin:12px 0 4px;flex-wrap:wrap}
+.posttext{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;font-size:15px;line-height:1.6;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:8px 0 0;max-width:72ch}
+.panel{padding:20px 0 0}
+
+.week{margin-bottom:26px}
+.week h3{font-size:18px;margin:0 0 10px;letter-spacing:-.01em;line-height:1.3}
+.week h3 small{font-size:12.5px;color:var(--mut);font-weight:500;margin-left:8px}
+.days{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.day{background:var(--surf);border:1px solid var(--line);border-radius:11px;padding:9px;min-height:112px;display:flex;flex-direction:column;gap:6px}
+.day .dn{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);font-weight:600}
+.pill{display:grid;gap:1px;text-align:left;width:100%;background:var(--bg);border:1px solid var(--line);border-left:3px solid var(--pc);border-radius:8px;padding:5px 8px;cursor:pointer;font-size:12.5px;line-height:1.3}
+.pill:hover{border-color:var(--pc)}
+.pill .pt{font-weight:700;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--pc)}
+.pill .tr{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:var(--ink2)}
+.li{--pc:var(--li)} .ig{--pc:var(--ig)} .fb{--pc:var(--fb)}
+
+.trend{background:var(--surf);border:1px solid var(--line);border-radius:13px;padding:20px;margin-bottom:14px}
+.trend-h{display:flex;gap:12px;align-items:baseline}
+.trend-h .num{font-size:11px;font-weight:700;color:var(--pc);letter-spacing:.08em}
+.trend-h h3{font-size:18px;line-height:1.3;margin:0;letter-spacing:-.01em}
+.src{font-size:12.5px;color:var(--mut);margin:4px 0 8px}
+details.facts{margin:6px 0 14px;font-size:14px;color:var(--ink2)}
+details.facts summary{cursor:pointer;font-weight:600;font-size:13px;color:var(--ink);min-height:30px;display:flex;align-items:center}
+details.facts ul{margin:6px 0 0;padding-left:20px}
+details.facts li{margin-bottom:5px}
+.posts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.post{background:var(--bg);border:1px solid var(--line);border-top:3px solid var(--pc);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.post .ph{display:flex;justify-content:space-between;gap:8px;align-items:baseline;flex-wrap:wrap}
+.post .pn{font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;font-weight:700;color:var(--pc)}
+.post .pd{font-size:12px;color:var(--mut)}
+.post pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;font-size:14px;line-height:1.55;color:var(--ink2);margin:0;max-height:300px;overflow:auto}
+.post .acts{display:flex;gap:8px;margin-top:auto;flex-wrap:wrap}
+.edited{font-size:10px;font-weight:700;background:var(--warmbg);color:var(--warm);border-radius:20px;padding:1px 7px;margin-left:6px;letter-spacing:.04em}
+
+dialog{border:1px solid var(--line);border-radius:13px;padding:0;width:min(680px,calc(100vw - 24px));max-height:calc(100vh - 24px);background:var(--surf);color:var(--ink)}
+dialog::backdrop{background:rgba(0,0,0,.5)}
+.dlg{display:flex;flex-direction:column;max-height:calc(100vh - 28px)}
+.dlg-h{padding:16px 20px 12px;border-bottom:1px solid var(--line);border-top:3px solid var(--pc);border-radius:13px 13px 0 0}
+.dlg-h .pn{font-weight:700;color:var(--pc);font-size:10.5px;letter-spacing:.07em;text-transform:uppercase}
+.dlg-h h3{font-size:18px;margin:3px 0 2px;line-height:1.3;letter-spacing:-.01em}
+.dlg-h .pd{font-size:12.5px;color:var(--mut)}
+.dlg-b{padding:14px 20px;overflow:auto;display:grid;gap:12px}
+textarea{width:100%;min-height:260px;resize:vertical;border:1px solid var(--line);border-radius:10px;padding:11px 12px;line-height:1.55;background:var(--bg);font-size:15px}
+.count{font-size:12.5px;color:var(--mut);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.count.over{color:var(--warm);font-weight:700}
+.extra{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:14px;color:var(--ink2)}
+.extra b{display:block;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--mut);margin-bottom:4px}
+.extra ol{margin:4px 0 0;padding-left:22px}
+.dlg-f{padding:12px 20px 16px;border-top:1px solid var(--line);display:flex;gap:8px;flex-wrap:wrap}
+
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:9px;font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:.2s;z-index:50}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+footer{margin-top:52px;padding:20px 0 56px;border-top:1px solid var(--line);font-size:12.5px;color:var(--mut)}
+footer p{margin:0 0 6px;max-width:72ch}
+.err{background:var(--err);border-radius:10px;padding:12px 14px;font-size:14px}
+
+.upload{background:var(--surf);border:1px solid var(--line);border-radius:13px;padding:20px}
+.up-lede{color:var(--ink2);font-size:14.5px;margin:0 0 14px;max-width:72ch}
+.up-h{font-size:16px;margin:26px 0 6px;letter-spacing:-.01em}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.msg{font-size:12.5px;color:var(--mut)}
+.sr-file{position:absolute;opacity:0;width:1px;height:1px;overflow:hidden}
+.sr-file:focus-visible+.filebtn{outline:2px solid var(--acc);outline-offset:2px}
+.filebtn{display:inline-flex;align-items:center;cursor:pointer;margin:0}
+.secs{display:grid;gap:8px;margin-top:8px;max-height:420px;overflow:auto}
+.sec{display:flex;gap:10px;align-items:flex-start;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;cursor:pointer}
+.sec input{accent-color:var(--warm);width:17px;height:17px;margin:3px 0 0;flex:none}
+.sec b{display:block;font-weight:600}
+.sec span{color:var(--mut);font-size:12.5px}
+#up-err{color:var(--warm);font-weight:600}
+.keybox{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:18px}
+.keybox .up-lede{margin-bottom:10px}
+.keyin{flex:1;min-width:220px;background:var(--surf);border:1px solid var(--line);border-radius:9px;padding:7px 10px;min-height:40px}
+.sr-only{position:absolute;left:-9999px}
+.linkbtn{background:none;border:0;padding:0;color:var(--acc);cursor:pointer;text-decoration:underline;font:inherit}
+.keyok{margin:0 0 14px}
+.status{margin:14px 0 0;padding:12px 14px;border-radius:10px;font-size:14.5px;background:var(--warmbg);color:var(--ink)}
+.status.bad{background:var(--err);font-weight:600}
+.keybox.flash{border-color:var(--warm);box-shadow:0 0 0 1px var(--warm) inset}
+.sug{font-size:13.5px;color:var(--ink2);margin:4px 0 8px;max-width:78ch}
+.sug b{color:var(--ink);font-weight:600}
+.sug a{color:var(--acc);overflow-wrap:anywhere}
+.ready{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--warmbg);border-radius:10px;padding:12px 14px;margin-top:16px;font-size:14px}
+.tagown{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:var(--warmbg);color:var(--warm);border-radius:20px;padding:1px 7px;margin-left:6px}
+@media (max-width:900px){.posts{grid-template-columns:1fr}}
+@media (max-width:720px){
+  .wrap{padding:0 16px}
+  .days{grid-template-columns:1fr}
+  .day{min-height:0}
+  .day.empty{display:none}
+  .step{margin-top:36px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <span class="eyebrow">We Should Be Friends AB · Pausplings trendspaning</span>
+    <h1>Spaningsbyrån: <em>från nyhetsbrev till inlägg</em></h1>
+    <p class="lede">Ladda upp ett av dina nyhetsbrev. Sidan skriver inlägg för LinkedIn, Instagram och Facebook, en trend per inlägg, med förslag på bild och länk, plus en kalender som visar när de passar att publicera.</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <section aria-labelledby="h-up">
+    <div class="step"><span class="n" aria-hidden="true"></span><b id="h-up">Ladda upp nyhetsbrev</b></div>
+    <div class="upload">
+      <div id="key-set" class="keybox" hidden>
+        <p class="up-lede"><b>Engångsinställning:</b> för att sidan ska kunna skriva inläggen behöver den din egen Anthropic API-nyckel. Skapa en på <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a> och klistra in den här. Nyckeln sparas bara i den här webbläsaren. Texten du laddar upp skickas direkt till Anthropic för att skriva inläggen, annars ingenstans.</p>
+        <form class="row" id="key-form" onsubmit="return false">
+          <label for="key-in" class="sr-only">API-nyckel</label>
+          <input type="password" id="key-in" class="keyin" placeholder="sk-ant-..." autocomplete="off" spellcheck="false">
+          <button class="btn primary" type="submit" id="key-save">Spara nyckel</button>
+          <span class="msg" id="key-err" role="alert"></span>
+        </form>
+      </div>
+      <p class="msg keyok" id="key-have" hidden>API-nyckel sparad i den här webbläsaren. <button class="linkbtn" type="button" id="key-clear">Ta bort nyckeln</button></p>
+
+      <p class="up-lede">Ladda upp nyhetsbrevet som PDF (till exempel utskrivet från Substack) eller HTML. PDF:en måste innehålla text, inte vara en inskannad bild.</p>
+      <div class="row">
+        <input type="file" id="up-file" accept=".pdf,.html,.htm,application/pdf,text/html" class="sr-file">
+        <label for="up-file" class="btn primary filebtn">Välj PDF eller HTML</label>
+        <span class="msg" id="up-name">Ingen fil vald</span>
+      </div>
+
+      <div id="up-step2" hidden>
+        <h3 class="up-h">Vilka trender ska bli inlägg?</h3>
+        <p class="msg" id="up-meta"></p>
+        <div id="up-sections" class="secs"></div>
+        <div class="row">
+          <button class="btn primary" type="button" id="up-go">Skapa inlägg</button>
+          <span class="msg" id="up-size"></span>
+        </div>
+        <p class="status" id="up-prog" role="status" hidden></p>
+        <p class="status bad" id="up-err" role="alert" hidden></p>
+      </div>
+    </div>
+  </section>
+
+  <section id="saved" hidden aria-labelledby="h-pick">
+    <div class="step"><span class="n" aria-hidden="true"></span><b id="h-pick">Tidigare uppladdade</b></div>
+    <ul class="grid" id="picker"></ul>
+  </section>
+
+  <section id="results" hidden aria-labelledby="h-res">
+    <div class="step"><span class="n" aria-hidden="true"></span><b id="h-res">Inlägg och kalender</b></div>
+
+    <div class="meta">
+      <span class="sub" id="m-date"></span>
+      <h2 id="m-subject"></h2>
+      <p class="sum" id="m-sum"></p>
+      <div class="stale" id="stale" hidden></div>
+    </div>
+
+    <div class="controls">
+      <div class="field">
+        <label for="start">Första publiceringsvecka (måndag)</label>
+        <input type="date" id="start">
+      </div>
+      <span class="spacer"></span>
+      <button class="btn" type="button" id="del-custom" hidden>Ta bort det här brevet</button>
+      <button class="btn primary" type="button" id="ics">Ladda ner kalender (.ics)</button>
+    </div>
+
+    <div class="tabs" role="tablist" aria-label="Vy">
+      <button class="tab" role="tab" id="tab-cal" data-tab="cal" aria-controls="p-cal" aria-selected="true" type="button">Kalender <span class="n" id="n-cal">0</span></button>
+      <button class="tab" role="tab" id="tab-linkedin" data-tab="linkedin" aria-controls="p-linkedin" aria-selected="false" type="button">LinkedIn <span class="n" id="n-linkedin">0</span></button>
+      <button class="tab" role="tab" id="tab-instagram" data-tab="instagram" aria-controls="p-instagram" aria-selected="false" type="button">Instagram <span class="n" id="n-instagram">0</span></button>
+      <button class="tab" role="tab" id="tab-facebook" data-tab="facebook" aria-controls="p-facebook" aria-selected="false" type="button">Facebook <span class="n" id="n-facebook">0</span></button>
+    </div>
+    <div class="panel" id="p-cal" role="tabpanel" aria-labelledby="tab-cal"></div>
+    <div class="panel" id="p-linkedin" role="tabpanel" aria-labelledby="tab-linkedin" hidden></div>
+    <div class="panel" id="p-instagram" role="tabpanel" aria-labelledby="tab-instagram" hidden></div>
+    <div class="panel" id="p-facebook" role="tabpanel" aria-labelledby="tab-facebook" hidden></div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Varje trend har tre inlägg, ett per plattform. Klicka på ett inlägg i kalendern för att läsa, redigera och kopiera det. Dina ändringar sparas bara i den här webbläsaren.</p>
+    <p>Sidan är inte indexerad av sökmotorer, men den är heller inte lösenordsskyddad. Dela länken med omtanke.</p>
+  </div>
+</footer>
+
+<dialog id="dlg" aria-labelledby="d-title">
+  <div class="dlg" id="dlg-root">
+    <div class="dlg-h">
+      <div class="pn" id="d-plat"></div>
+      <h3 id="d-title"></h3>
+      <div class="pd" id="d-when"></div>
+    </div>
+    <div class="dlg-b">
+      <label for="d-text" class="sr" style="position:absolute;left:-9999px">Inläggstext</label>
+      <textarea id="d-text" spellcheck="true"></textarea>
+      <div class="count" id="d-count"></div>
+      <div class="extra" id="d-vis" hidden></div>
+    </div>
+    <div class="dlg-f">
+      <button class="btn primary" type="button" id="d-copy">Kopiera text</button>
+      <button class="btn" type="button" id="d-reset">Återställ original</button>
+      <span class="spacer"></span>
+      <button class="btn" type="button" id="d-close">Stäng</button>
+    </div>
+  </div>
+</dialog>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+"use strict";
+
+var PLAT = {
+  linkedin:  {name:"LinkedIn",  cls:"li", short:"LI", limit:3000},
+  instagram: {name:"Instagram", cls:"ig", short:"IG", limit:2200},
+  facebook:  {name:"Facebook",  cls:"fb", short:"FB", limit:63206}
+};
+var ORDER = ["linkedin","instagram","facebook"];
+var DOW = ["måndag","tisdag","onsdag","torsdag","fredag"];
+var DOWS = ["mån","tis","ons","tors","fre"];
+var MON = ["jan","feb","mars","apr","maj","juni","juli","aug","sep","okt","nov","dec"];
+var MONL = ["januari","februari","mars","april","maj","juni","juli","augusti","september","oktober","november","december"];
+
+var $ = function(id){return document.getElementById(id)};
+var state = {index:[], cur:null, posts:[], base:null, filter:{linkedin:true,instagram:true,facebook:true}, openUid:null};
+
+/* ---------- helpers ---------- */
+function el(tag, props, kids){
+  var e = document.createElement(tag);
+  if(props){ for(var k in props){
+    if(k==="text") e.textContent = props[k];
+    else if(k==="class") e.className = props[k];
+    else if(k.slice(0,2)==="on") e.addEventListener(k.slice(2), props[k]);
+    else e.setAttribute(k, props[k]);
+  }}
+  (kids||[]).forEach(function(c){ if(c!=null) e.appendChild(typeof c==="string"?document.createTextNode(c):c); });
+  return e;
+}
+function pad(n){return (n<10?"0":"")+n}
+function ymd(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
+function parseYmd(s){var p=s.split("-");return new Date(+p[0],+p[1]-1,+p[2])}
+function addDays(d,n){var x=new Date(d.getFullYear(),d.getMonth(),d.getDate()+n);return x}
+function mondayOf(d){var dow=(d.getDay()+6)%7;return addDays(d,-dow)}
+function nextMonday(){var t=new Date();t=new Date(t.getFullYear(),t.getMonth(),t.getDate());var dow=(t.getDay()+6)%7;return addDays(t,7-dow)}
+function isoWeek(d){
+  var t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
+  var dn=t.getUTCDay()||7; t.setUTCDate(t.getUTCDate()+4-dn);
+  var y0=new Date(Date.UTC(t.getUTCFullYear(),0,1));
+  return Math.ceil(((t-y0)/86400000+1)/7);
+}
+function fmtDay(d){var dow=(d.getDay()+6)%7;return DOWS[dow]+" "+d.getDate()+" "+MON[d.getMonth()]}
+function fmtLong(s){var d=parseYmd(s);return d.getDate()+" "+MONL[d.getMonth()]+" "+d.getFullYear()}
+function toast(msg){var t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(toast._t);toast._t=setTimeout(function(){t.classList.remove("show")},1800)}
+
+function store(k,v){try{ if(v==null) localStorage.removeItem(k); else localStorage.setItem(k,v);}catch(e){}}
+function load(k){try{return localStorage.getItem(k)}catch(e){return null}}
+
+function copyText(text){
+  function fallback(){
+    var ta=el("textarea",{"aria-hidden":"true"});ta.value=text;ta.style.cssText="position:fixed;left:-9999px;top:0";
+    document.body.appendChild(ta);ta.select();var ok=false;try{ok=document.execCommand("copy")}catch(e){}
+    document.body.removeChild(ta);toast(ok?"Kopierat":"Kunde inte kopiera, markera texten manuellt");
+  }
+  if(navigator.clipboard&&window.isSecureContext){
+    navigator.clipboard.writeText(text).then(function(){toast("Kopierat")},fallback);
+  } else fallback();
+}
+
+/* ---------- data ---------- */
+function fetchJson(u){return fetch(u,{cache:"no-cache"}).then(function(r){if(!r.ok)throw new Error(u+" "+r.status);return r.json()})}
+
+function postText(p){var v=load("sb:"+p.uid);return v!=null?v:p.text}
+function postEdited(p){return load("sb:"+p.uid)!=null}
+
+function flatten(data){
+  var out=[];
+  data.items.forEach(function(it,ix){
+    it.posts.forEach(function(p){
+      out.push({uid:data.id+"/"+it.id+"/"+p.platform,platform:p.platform,text:p.text,day:p.day,time:p.time,visual:p.visual||null,slides:p.slides||null,item:it,itemIx:ix});
+    });
+  });
+  return out;
+}
+function postDate(p){return addDays(state.base,p.day)}
+
+/* ---------- picker ---------- */
+function renderPicker(){
+  var ul=$("picker");ul.textContent="";
+  $("saved").hidden=!loadCustom().length;
+  allIndex().filter(function(n){return n.custom}).forEach(function(n){
+    var b=el("button",{class:"card",type:"button","aria-pressed":"false","data-id":n.id,onclick:function(){selectNewsletter(n.id)}},[
+      el("span",{class:"d"},[fmtLong(n.date),n.custom?el("span",{class:"tagown",text:"eget"}):null]),
+      el("span",{class:"t",text:n.label}),
+      el("span",{class:"c",text:n.items+" trender · "+n.posts+" inlägg"})
+    ]);
+    ul.appendChild(el("li",null,[b]));
+  });
+}
+function markSelected(id){
+  document.querySelectorAll(".card").forEach(function(c){c.setAttribute("aria-pressed",c.getAttribute("data-id")===id?"true":"false")});
+}
+
+function selectNewsletter(id){
+  markSelected(id);
+  (customById(id)?Promise.resolve(customById(id)):Promise.reject(new Error("saknas"))).then(function(data){
+    state.cur=data;state.posts=flatten(data);
+    store("sb:last",id);
+    renderMeta();renderAll();
+    var r=$("results");r.hidden=false;
+    r.scrollIntoView({behavior:window.matchMedia("(prefers-reduced-motion:reduce)").matches?"auto":"smooth",block:"start"});
+  }).catch(function(e){
+    var r=$("results");r.hidden=false;r.textContent="";
+    r.appendChild(el("p",{class:"err",text:"Det gick inte att ladda nyhetsbrevet. Försök igen om en stund."}));
+    if(window.console)console.error(e);
+  });
+}
+
+function renderMeta(){
+  var d=state.cur;
+  $("del-custom").hidden=!d.custom;
+  $("m-date").textContent="Utskick "+fmtLong(d.date);
+  $("m-subject").textContent=d.subject;
+  $("m-sum").textContent=d.summary;
+  var days=Math.round((new Date()-parseYmd(d.date))/86400000);
+  var s=$("stale");
+  if(days>45){
+    s.hidden=false;
+    s.textContent="Det här brevet skickades för "+(days>=60?Math.round(days/30)+" månader":days+" dagar")+" sedan. Nyheterna kan ha hunnit gå om, så dubbelkolla fakta och formuleringar som \"just nu\" innan du publicerar.";
+  } else s.hidden=true;
+}
+
+/* ---------- calendar ---------- */
+function visible(p){return state.filter[p.platform]}
+
+function renderCal(){
+  var root=$("p-cal");root.textContent="";
+  var ps=state.posts.filter(visible);
+  var maxDay=0;state.posts.forEach(function(p){if(p.day>maxDay)maxDay=p.day});
+  var weeks=Math.floor(maxDay/7)+1;
+  for(var w=0;w<weeks;w++){
+    var mon=addDays(state.base,w*7),fri=addDays(mon,4);
+    var wk=el("div",{class:"week"});
+    wk.appendChild(el("h3",null,["Vecka "+isoWeek(mon),el("small",{text:mon.getDate()+" "+MON[mon.getMonth()]+" till "+fri.getDate()+" "+MON[fri.getMonth()]})]));
+    var days=el("div",{class:"days"});
+    for(var i=0;i<5;i++){
+      var dn=w*7+i;
+      var inDay=ps.filter(function(p){return p.day===dn}).sort(function(a,b){return a.time<b.time?-1:a.time>b.time?1:0});
+      var cell=el("div",{class:"day"+(inDay.length?" has":" empty")});
+      cell.appendChild(el("div",{class:"dn",text:DOW[i]+" "+addDays(mon,i).getDate()+" "+MON[addDays(mon,i).getMonth()]}));
+      inDay.forEach(function(p){
+        var pl=PLAT[p.platform];
+        cell.appendChild(el("button",{class:"pill "+pl.cls,type:"button","aria-label":pl.name+" "+p.time+", "+p.item.trend,onclick:function(){openPost(p.uid)}},[
+          el("span",{class:"pt",text:pl.name+" · "+p.time}),
+          el("span",{class:"tr",text:p.item.trend})
+        ]));
+      });
+      days.appendChild(cell);
+    }
+    wk.appendChild(days);root.appendChild(wk);
+  }
+  if(!ps.length)root.appendChild(el("p",{text:"Inga inlägg att visa. Slå på minst en plattform."}));
+}
+
+/* ---------- en flik per plattform ---------- */
+var LINKNOTE={linkedin:"Länk att lägga i första kommentaren: ",instagram:"Länk att lägga i bion eller i en story: ",facebook:"Länk att lägga i inlägget eller första kommentaren: "};
+function renderPlatform(pf){
+  var root=$("p-"+pf);root.textContent="";
+  var pl=PLAT[pf],cards=el("div",{class:"trends"});
+  state.cur.items.forEach(function(it,ix){
+    var p=state.posts.filter(function(x){return x.itemIx===ix&&x.platform===pf})[0];if(!p)return;
+    var card=el("article",{class:"trend "+pl.cls});
+    card.appendChild(el("div",{class:"trend-h"},[el("span",{class:"num",text:"TREND "+(ix+1)}),el("h3",{text:it.trend})]));
+    card.appendChild(el("p",{class:"src"},["Källa: "+(it.source||"nyhetsbrevet")+" · Förslag: "+fmtDay(postDate(p))+" kl "+p.time,postEdited(p)?el("span",{class:"edited",text:"redigerad"}):null]));
+    card.appendChild(el("pre",{class:"posttext",text:postText(p)}));
+    var acts=el("div",{class:"acts"},[
+      el("button",{class:"btn primary small",type:"button",onclick:function(){copyText(postText(p))}},["Kopiera text"]),
+      el("button",{class:"btn small",type:"button",onclick:function(){openPost(p.uid)}},["Redigera"])
+    ]);
+    card.appendChild(acts);
+    var img=(pf==="instagram"&&p.visual)?p.visual:it.image;
+    if(img)card.appendChild(el("p",{class:"sug"},[el("b",{text:"Bildförslag: "}),img]));
+    if(pf==="instagram"&&p.slides&&p.slides.length){
+      var ol=el("ol");p.slides.forEach(function(s){ol.appendChild(el("li",{text:s}))});
+      card.appendChild(el("details",{class:"facts"},[el("summary",{text:"Text till karusellens bilder ("+p.slides.length+")"}),ol]));
+    }
+    if(it.link){
+      card.appendChild(el("p",{class:"sug"},[el("b",{text:LINKNOTE[pf]}),el("a",{href:it.link.href,target:"_blank",rel:"noopener",text:it.link.href.replace(/^https?:\/\/(www\.)?/,"").slice(0,70)})," ",
+        el("button",{class:"btn small",type:"button",onclick:function(){copyText(it.link.href)}},["Kopiera länk"])]));
+    }
+    if(it.facts&&it.facts.length){
+      var ul=el("ul");it.facts.forEach(function(f){ul.appendChild(el("li",{text:f}))});
+      card.appendChild(el("details",{class:"facts"},[el("summary",{text:"Underlag ur nyhetsbrevet"}),ul]));
+    }
+    cards.appendChild(card);
+  });
+  root.appendChild(cards);
+}
+function renderPlatforms(){
+  ORDER.forEach(renderPlatform);
+  ORDER.concat(["cal"]).forEach(function(k){
+    var n=$("n-"+k);if(!n)return;
+    n.textContent=k==="cal"?String(state.posts.length):String(state.posts.filter(function(p){return p.platform===k}).length);
+  });
+}
+
+function renderAll(){
+  if(!state.cur)return;
+  if(!state.base){
+    var saved=load("sb:start");
+    state.base=saved?mondayOf(parseYmd(saved)):nextMonday();
+    $("start").value=ymd(state.base);
+  }
+  renderCal();renderPlatforms();
+}
+
+/* ---------- dialog ---------- */
+function countInfo(p,txt){
+  var pl=PLAT[p.platform],n=Array.from(txt).length,box=$("d-count");
+  box.className="count"+(n>pl.limit?" over":"");
+  box.textContent="";
+  box.appendChild(el("span",{text:n+" tecken"}));
+  if(p.platform!=="facebook")box.appendChild(el("span",{text:"Max "+pl.limit+" på "+pl.name}));
+  else box.appendChild(el("span",{text:"Facebook tillåter långa inlägg, men kortare läses oftare"}));
+}
+function openPost(uid){
+  var p=state.posts.filter(function(x){return x.uid===uid})[0];if(!p)return;
+  state.openUid=uid;
+  var pl=PLAT[p.platform];
+  $("dlg-root").className="dlg "+pl.cls;
+  $("d-plat").textContent=pl.name;
+  $("d-title").textContent=p.item.trend;
+  $("d-when").textContent=DOW[(postDate(p).getDay()+6)%7]+" "+postDate(p).getDate()+" "+MONL[postDate(p).getMonth()]+" kl "+p.time;
+  var ta=$("d-text");ta.value=postText(p);countInfo(p,ta.value);
+  var vis=$("d-vis");vis.textContent="";
+  if(p.platform==="instagram"&&(p.visual||p.slides)){
+    vis.hidden=false;
+    if(p.visual){vis.appendChild(el("b",{text:"Bildidé"}));vis.appendChild(el("div",{text:p.visual}))}
+    if(p.slides&&p.slides.length){
+      vis.appendChild(el("b",{text:"Text till karusellens bilder",style:"margin-top:10px"}));
+      var ol=el("ol");p.slides.forEach(function(s){ol.appendChild(el("li",{text:s}))});vis.appendChild(ol);
+    }
+  } else vis.hidden=true;
+  var d=$("dlg");
+  if(typeof d.showModal==="function")d.showModal();else d.setAttribute("open","");
+}
+function closeDlg(){var d=$("dlg");if(d.close)d.close();else d.removeAttribute("open")}
+function currentPost(){return state.posts.filter(function(x){return x.uid===state.openUid})[0]}
+
+$("d-text").addEventListener("input",function(){
+  var p=currentPost();if(!p)return;
+  var v=this.value;countInfo(p,v);
+  if(v===p.text)store("sb:"+p.uid,null);else store("sb:"+p.uid,v);
+});
+$("d-copy").addEventListener("click",function(){copyText($("d-text").value)});
+$("d-reset").addEventListener("click",function(){
+  var p=currentPost();if(!p)return;
+  store("sb:"+p.uid,null);$("d-text").value=p.text;countInfo(p,p.text);toast("Originaltexten är tillbaka");
+});
+$("d-close").addEventListener("click",closeDlg);
+$("dlg").addEventListener("click",function(e){if(e.target===this)closeDlg()});
+$("dlg").addEventListener("close",function(){renderPlatforms()});
+
+/* ---------- controls ---------- */
+$("start").addEventListener("change",function(){
+  if(!this.value)return;
+  state.base=mondayOf(parseYmd(this.value));
+  this.value=ymd(state.base);
+  store("sb:start",this.value);
+  renderAll();
+});
+var TABS=["cal","linkedin","instagram","facebook"];
+function setTab(which){
+  TABS.forEach(function(k){
+    $("tab-"+k).setAttribute("aria-selected",String(k===which));
+    $("p-"+k).hidden=k!==which;
+  });
+}
+TABS.forEach(function(k){$("tab-"+k).addEventListener("click",function(){setTab(k)})});
+
+/* ---------- ICS ---------- */
+function icsEsc(s){return String(s).replace(/\\/g,"\\\\").replace(/;/g,"\\;").replace(/,/g,"\\,").replace(/\r?\n/g,"\\n")}
+function fold(line){
+  var out=[],chars=Array.from(line),cur="",bytes=0;
+  chars.forEach(function(ch){
+    var b=new Blob([ch]).size;
+    if(bytes+b>72){out.push(cur);cur=" "+ch;bytes=1+b}else{cur+=ch;bytes+=b}
+  });
+  out.push(cur);return out.join("\r\n");
+}
+function stamp(d,time){var t=time.split(":");return d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+"T"+pad(+t[0])+pad(+t[1])+"00"}
+function makeIcs(){
+  var L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//We Should Be Friends//Spaningsbyran//SV","CALSCALE:GREGORIAN","METHOD:PUBLISH","X-WR-CALNAME:"+icsEsc("Sociala medier: "+state.cur.label)];
+  var now=new Date();
+  var dts=now.getUTCFullYear()+pad(now.getUTCMonth()+1)+pad(now.getUTCDate())+"T"+pad(now.getUTCHours())+pad(now.getUTCMinutes())+pad(now.getUTCSeconds())+"Z";
+  state.posts.filter(visible).forEach(function(p){
+    var d=postDate(p),t=p.time.split(":"),end=pad((+t[0]+(+t[1]+30>=60?1:0))%24)+":"+pad((+t[1]+30)%60);
+    L.push("BEGIN:VEVENT","UID:"+p.uid.replace(/[^a-z0-9]/gi,"-")+"-"+ymd(state.base)+"@spaningsbyran","DTSTAMP:"+dts,
+      "DTSTART:"+stamp(d,p.time),"DTEND:"+stamp(d,end),
+      "SUMMARY:"+icsEsc(PLAT[p.platform].name+": "+p.item.trend),
+      "DESCRIPTION:"+icsEsc(postText(p)),"END:VEVENT");
+  });
+  L.push("END:VCALENDAR");
+  return L.map(fold).join("\r\n")+"\r\n";
+}
+$("ics").addEventListener("click",function(){
+  if(!state.cur)return;
+  var blob=new Blob([makeIcs()],{type:"text/calendar;charset=utf-8"});
+  var a=el("a",{href:URL.createObjectURL(blob),download:"publiceringskalender-"+state.cur.id+".ics"});
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(function(){URL.revokeObjectURL(a.href)},2000);
+  toast("Kalenderfilen laddas ner");
+});
+
+/* ---------- egna nyhetsbrev (uppladdning) ---------- */
+function loadCustom(){try{var v=JSON.parse(load("sb:custom")||"[]");return Array.isArray(v)?v:[]}catch(e){return[]}}
+function saveCustom(a){store("sb:custom",JSON.stringify(a))}
+function customById(id){return loadCustom().filter(function(d){return d.id===id})[0]||null}
+function allIndex(){
+  var c=loadCustom().map(function(d){return{id:d.id,date:d.date,label:d.label,subject:d.subject,items:d.items.length,posts:d.items.reduce(function(n,i){return n+i.posts.length},0),custom:true}});
+  return c.sort(function(a,b){return a.date<b.date?1:a.date>b.date?-1:0});
+}
+
+var up={title:"",date:"",sections:[]};
+var SKIP_LINK=/substack\.com\/(subscribe|app-link|redirect\/2\/)|action=share|unsubscribe|\/subscribe|mailto:/i;
+
+function parseNewsletter(html){
+  var doc=new DOMParser().parseFromString(html,"text/html");
+  doc.querySelectorAll("script,style,noscript,svg,iframe,form,nav,footer,button,template").forEach(function(n){n.remove()});
+  var h1=doc.querySelector("h1"),tt=doc.querySelector("title");
+  var title=((h1&&h1.textContent)||(tt&&tt.textContent)||"Nyhetsbrev").replace(/\s+/g," ").trim().replace(/^💌\s*|\s*💌$/g,"");
+  var date="";
+  var m=doc.querySelector('meta[property="article:published_time"],meta[name="date"],meta[itemprop="datePublished"]');
+  if(m&&m.content)date=m.content.slice(0,10);
+  if(!date){var t=doc.querySelector("time[datetime]");if(t)date=t.getAttribute("datetime").slice(0,10)}
+  if(!date){
+    var txt=(doc.body?doc.body.textContent:"").slice(0,4000),mm=txt.match(/\b(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)[A-Z]*\.? (\d{1,2}), (20\d\d)\b/i);
+    if(mm){var mi=["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"].indexOf(mm[1].toUpperCase().slice(0,3));date=mm[3]+"-"+pad(mi+1)+"-"+pad(+mm[2])}
+  }
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(date))date=ymd(new Date());
+  var root=doc.querySelector("article,.available-content,.body.markup,main")||doc.body;
+  var secs=[],cur={heading:"Inledning",text:"",links:[]};
+  function push(){if(cur.text.trim()||cur.links.length)secs.push(cur)}
+  function isFakeHeading(n){
+    if(n.tagName!=="P")return false;
+    var k=n.children;if(k.length!==1||!/^(STRONG|B)$/.test(k[0].tagName))return false;
+    var a=n.textContent.trim(),b=k[0].textContent.trim();return a===b&&a.length>3&&a.length<130;
+  }
+  root.querySelectorAll("h1,h2,h3,h4,p,li,blockquote").forEach(function(n){
+    if(n.tagName==="P"&&n.closest("li,blockquote"))return;
+    if(n.tagName==="LI"&&n.querySelector("p"))return;
+    var tx=n.textContent.replace(/\s+/g," ").trim();if(!tx)return;
+    if(/^H[2-4]$/.test(n.tagName)||isFakeHeading(n)){push();cur={heading:tx,text:"",links:[]};return}
+    if(n.tagName==="H1")return;
+    cur.text+=(n.tagName==="LI"?"- ":"")+tx+"\n";
+    n.querySelectorAll("a[href]").forEach(function(a){
+      var h=a.getAttribute("href")||"";if(!/^https?:/i.test(h)||SKIP_LINK.test(h))return;
+      var lt=a.textContent.replace(/\s+/g," ").trim();
+      if(lt&&!cur.links.some(function(l){return l.href===h}))cur.links.push({text:lt,href:h});
+    });
+  });
+  push();
+  return {title:title,date:date,sections:secs};
+}
+
+function renderSections(){
+  var box=$("up-sections");box.textContent="";
+  up.sections.forEach(function(s,i){
+    var long=s.text.length>=400&&!/^(inledning|tidbits)/i.test(s.heading);
+    var cb=el("input",{type:"checkbox","data-i":String(i)});cb.checked=long;
+    cb.addEventListener("change",updateSize);
+    box.appendChild(el("label",{class:"sec"},[cb,el("div",null,[el("b",{text:s.heading}),el("span",{text:s.text.length+" tecken"+(s.links.length?" · "+s.links.length+" länkar":"")})])]));
+  });
+  updateSize();
+}
+function selected(){return Array.prototype.map.call($("up-sections").querySelectorAll("input:checked"),function(c){return up.sections[+c.getAttribute("data-i")]})}
+function updateSize(){
+  var n=selected().length;
+  $("up-size").textContent=n+" trender valda";
+  $("up-go").disabled=!n||generating;
+}
+
+
+/* ---- PDF: text, rubriker (störst typsnitt) och länkar via pdf.js, laddas först vid behov ---- */
+var PDFJS_VER="3.11.174",PDFJS_BASE="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/"+PDFJS_VER+"/";
+function loadPdfJs(){
+  if(window.pdfjsLib)return Promise.resolve(window.pdfjsLib);
+  return new Promise(function(res,rej){
+    var s=document.createElement("script");s.src=PDFJS_BASE+"pdf.min.js";s.async=true;
+    s.onload=function(){window.pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS_BASE+"pdf.worker.min.js";res(window.pdfjsLib)};
+    s.onerror=function(){rej(new Error("Kunde inte ladda PDF-läsaren, kolla internetanslutningen"))};
+    document.head.appendChild(s);
+  });
+}
+var NOISE=[/^\d{4}-\d{2}-\d{2},? \d{2}:\d{2}/,/https?:\/\/\S+\s+\d+\/\d+\s*$/,/^\s*\d+\/\d+\s*$/,/^(share|like|comment|restack|subscribe)$/i,/^[\d\s]+(share)?$/i];
+async function parsePdf(buf){
+  var lib=await loadPdfJs();
+  var doc=await lib.getDocument({data:buf}).promise;
+  var lines=[];
+  for(var pn=1;pn<=doc.numPages;pn++){
+    var page=await doc.getPage(pn),tc=await page.getTextContent(),rows=[];
+    tc.items.forEach(function(it){
+      if(!it.str||!it.str.length)return;
+      var y=it.transform[5],row=rows.filter(function(r){return Math.abs(r.y-y)<=2.5})[0];
+      if(!row){row={y:y,items:[]};rows.push(row)}
+      row.items.push(it);
+    });
+    rows.sort(function(a,b){return b.y-a.y});
+    var pl=[];
+    rows.forEach(function(r){
+      r.items.sort(function(a,b){return a.transform[4]-b.transform[4]});
+      var text=r.items.map(function(i){return i.str}).join("").replace(/\s+/g," ").trim();
+      if(!text||NOISE.some(function(rx){return rx.test(text)}))return;
+      var size=0;r.items.forEach(function(i){if(i.str.trim()&&i.height>size)size=i.height});
+      pl.push({p:pn,y:r.y,text:text,size:Math.round(size*2)/2,links:[]});
+    });
+    var ann=await page.getAnnotations();
+    ann.forEach(function(a){
+      if(!a.url||!/^https?:/i.test(a.url)||SKIP_LINK.test(a.url)||!a.rect)return;
+      var my=(a.rect[1]+a.rect[3])/2,best=null,bd=1e9;
+      pl.forEach(function(l){var d=Math.abs(l.y-my);if(d<bd){bd=d;best=l}});
+      if(best&&bd<14)best.links.push(a.url);
+    });
+    lines=lines.concat(pl);
+  }
+  if(!lines.length)throw new Error("Ingen text hittades. PDF:en kanske är en inskannad bild.");
+  /* brödtextens storlek = vanligaste, viktat med antal tecken */
+  var hist={};lines.forEach(function(l){hist[l.size]=(hist[l.size]||0)+l.text.length});
+  var body=+Object.keys(hist).sort(function(a,b){return hist[b]-hist[a]})[0];
+  var isH=function(l){return l.size>=body*1.12&&l.text.length<160};
+  /* titel = första rubrikgruppen */
+  var title="",i=0;
+  while(i<lines.length&&!isH(lines[i]))i++;
+  var tsize=i<lines.length?lines[i].size:0;
+  while(i<lines.length&&isH(lines[i])&&lines[i].size===tsize&&lines[i].p===1){title+=(title?" ":"")+lines[i].text;i++}
+  var start=title?i:0;
+  title=title.replace(/^💌\s*|\s*💌$/g,"").trim()||"Nyhetsbrev";
+  var all=lines.map(function(l){return l.text}).join(" ").slice(0,3000);
+  var date="",mm=all.match(/\b(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)[A-Z]*\.? (\d{1,2}), (20\d\d)\b/);
+  if(mm){var mi=["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"].indexOf(mm[1]);date=mm[3]+"-"+pad(mi+1)+"-"+pad(+mm[2])}
+  else{var m2=all.match(/\b(20\d\d-\d{2}-\d{2})\b/);date=m2?m2[1]:ymd(new Date())}
+  var secs=[],cur={heading:"Inledning",text:"",links:[]},prev=null,lastHeading=false;
+  function push(){if(cur.text.trim())secs.push(cur)}
+  for(var k=start;k<lines.length;k++){
+    var l=lines[k];
+    if(isH(l)){
+      if(lastHeading&&prev&&prev.size===l.size)cur.heading+=" "+l.text;
+      else{push();cur={heading:l.text,text:"",links:[]}}
+      lastHeading=true;prev=l;continue;
+    }
+    lastHeading=false;
+    var gap=prev&&prev.p===l.p?prev.y-l.y:0;
+    cur.text+=(gap>body*1.9?"\n":" ")+l.text;
+    l.links.forEach(function(u){if(!cur.links.some(function(x){return x.href===u})){var h;try{h=new URL(u).hostname.replace(/^www\./,"")}catch(e){h=u}cur.links.push({text:h,href:u})}});
+    prev=l;
+  }
+  push();
+  return {title:title,date:date,sections:secs,fromPdf:true};
+}
+
+function showParsed(){
+  if(!up.sections.length)throw new Error("Hittade ingen text i filen");
+  $("up-meta").textContent="\""+up.title+"\" · "+fmtLong(up.date)+" · "+up.sections.length+" avsnitt hittades. Bocka ur sådant som inte är en trend, som kursinfo eller hälsningar."+(up.fromPdf?" Texten kommer från en PDF, så rubrikerna är gissade utifrån typsnittsstorlek. Kolla att listan stämmer.":"");
+  renderSections();$("up-step2").hidden=false;
+}
+$("up-file").addEventListener("change",function(){
+  var f=this.files&&this.files[0];if(!f)return;
+  $("up-name").textContent=f.name;$("up-err").textContent="";$("up-step2").hidden=true;
+  var isPdf=/\.pdf$/i.test(f.name)||f.type==="application/pdf";
+  var r=new FileReader();
+  r.onerror=function(){$("up-err").textContent="Kunde inte läsa filen"};
+  if(isPdf){
+    $("up-name").textContent=f.name+" (läser PDF…)";
+    r.onload=function(){
+      parsePdf(new Uint8Array(r.result)).then(function(p){up=p;$("up-name").textContent=f.name;showParsed()})
+        .catch(function(e){$("up-name").textContent=f.name;$("up-err").textContent="Kunde inte läsa PDF:en: "+e.message});
+    };
+    r.readAsArrayBuffer(f);
+  } else {
+    r.onload=function(){try{up=parseNewsletter(String(r.result));showParsed()}catch(e){$("up-err").textContent="Kunde inte läsa filen: "+e.message}};
+    r.readAsText(f);
+  }
+});
+/* ---------- API-nyckel och generering ---------- */
+var MODEL="claude-sonnet-5-5";
+function getKey(){return load("sb:key")||""}
+function renderKey(){var has=!!getKey();$("key-set").hidden=has;$("key-have").hidden=!has}
+$("key-form").addEventListener("submit",function(ev){ev.preventDefault();
+  var v=$("key-in").value.trim();
+  if(!/^sk-ant-/.test(v)){$("key-err").textContent="Det ser inte ut som en Anthropic-nyckel. De börjar med sk-ant-";return}
+  store("sb:key",v);$("key-in").value="";$("key-err").textContent="";$("key-set").classList.remove("flash");renderKey();
+});
+$("key-clear").addEventListener("click",function(){store("sb:key",null);renderKey()});
+
+var VOICE="Du skriver sociala medier-inlägg åt Paulina Modlitba (We Should Be Friends AB, Stockholm) utifrån hennes nyhetsbrev \"Pausplings trendspaning\". Du får EN trend ur brevet åt gången och skriver tre inlägg om just den: LinkedIn, Instagram och Facebook.\n\n"+
+"LÄNGD\nLinkedIn 800 till 1300 tecken. Första raden är en hook på max ca 140 tecken. Korta stycken med tomrad emellan. Avsluta med en fråga till läsarna, sedan raden \"Mer i nyhetsbrevet Pausplings trendspaning (länk i första kommentaren)\", och 2 till 4 hashtags sist.\nInstagram: bildtext 350 till 700 tecken plus 5 till 8 hashtags sist. \"slides\" är 4 till 6 korta texter till en karusell (max 18 ord var, första är en stark hook, sista en fråga eller poäng). \"visual\" beskriver bilden eller karusellens utseende.\nFacebook: 350 till 650 tecken, varmt och pratigt, en fråga i slutet, inga hashtags.\nTexterna ska vara färdiga att klistra in, med radbrytningar. Inga platshållare.\n\n"+
+"RÖSTEN\n- Svenska, jag-röst som Paulina: vass, vänlig senior rådgivare som pratar som på ett fik. Nyfiken och reflekterande, aldrig hypig, inga buzzwords, inget konsultspråk.\n- INGA tankstreck, varken – eller —. Använd komma, punkt, kolon eller parentes. Intervall skrivs \"45 till 60 minuter\".\n- Ingen konstruktion av typen \"inte X utan Y\" eller \"Det är inte X. Det är Y.\". Skriv positivt.\n- Inga formella akademiska ord. Skulle hon säga det i en tv-studio?\n- Aldrig \"Paulinas kommentar:\" och inga numrerade ramverk för egen analys.\n- Konkret först: vad som faktiskt hänt, med siffror och namn ur texten. Hennes åsikt och insikt i slutet.\n- Erfinn ALDRIG fakta, siffror, citat, titlar eller roller. Allt ska stå i texten du får. Är en detalj avklippt eller oklar, utelämna den.\n- Nyheten kan vara äldre än idag: undvik \"idag\" och \"just nu\".\n- Sparsamt med emojis (0 till 3 per inlägg). Variera öppningarna.\n\n"+
+"BILD OCH LÄNK\n\"image\": ett konkret förslag på bild att lägga till inlägget (till exempel en skärmdump av ett diagram eller en rubrik, en bild på en person eller produkt som nämns, eller ett enkelt eget citatkort). Beskriv vad bilden visar och var man hittar den.\n\"link_index\": numret på den länk i listan som är bäst som källa att lägga i första kommentaren, eller null om ingen länk passar.\n\n"+
+"SVARSFORMAT\nSvara med ENBART giltig JSON, utan förklaringar före eller efter:\n";
+var EX_SCHEMA='{"trend":"Kort rubrik, max 70 tecken","source":"Källa som brevet anger","facts":["2 till 4 konkreta fakta ur texten"],"image":"bildförslag","link_index":null,"linkedin":{"text":"..."},"instagram":{"text":"...","visual":"...","slides":["...","..."]},"facebook":{"text":"..."}}';
+var EXAMPLE="{\"trend\": \"Sverige med i Pax Silica: frågorna till utrikesministern\", \"source\": \"Regeringen.se, Per Axbom (LinkedIn), SvD, DI\", \"facts\": [\"Utrikesminister Maria Malmer Stenergard reste till Texas för att underteckna Pax Silica-deklarationen (Regeringen.se).\", \"Enligt Per Axbom gjorde det Sverige till det andra EU-landet efter Grekland att skriva under. Pax Silica lanserades i januari, bland annat med målet att bryta Kinas AI-dominans.\", \"Axbom och andra har skrivit ett öppet brev till utrikesministern med frågor om vilka förpliktelser Sverige åtagit sig, hur initiativet förhåller sig till EU och hur man undviker inlåsning i enskilda leverantörer.\", \"Axbom skriver att samarbetet gäller mineraler och infrastruktur för AI, tillsammans med bland andra Israel, Qatar och Förenade Arabemiraten.\"], \"image\": \"Karusell med tre av frågorna från det öppna brevet, en per slide, på beige bakgrund med grön accent.\", \"link_index\": null, \"linkedin\": {\"text\": \"Medan du sov (bildligt, men kanske även bokstavligen) reste utrikesminister Maria Malmer Stenergard till Texas.\\n\\nSyftet var att skriva under Pax Silica-deklarationen (Regeringen.se).\\n\\nPax Silica är ett initiativ som lanserades i januari, bland annat med målet att bryta Kinas AI-dominans. Enligt Per Axbom gäller samarbetet mineraler och infrastruktur för AI, tillsammans med länder som Israel, Qatar och Förenade Arabemiraten. Sverige blev det andra EU-landet efter Grekland att skriva under.\\n\\nTrots att det troligtvis kommer att påverka vår AI- och teknikframtid, och vårt och Europas tekniska oberoende, är det många svenskar som inte känner till det.\\n\\nPer Axbom har tillsammans med Christian Landgren, Pontus Wärnestål, Fia Ewald och Kerstin Beckman skrivit ett öppet brev med kloka frågor. Några av dem:\\n👉 Vilka förpliktelser har Sverige åtagit sig?\\n👉 Hur ska initiativet förhålla sig till EU:s arbete?\\n👉 Hur undviker vi inlåsning i enskilda leverantörer eller tekniska ekosystem?\\n\\nVi har frågor till Maria Malmer Stenergard. Vilken skulle ni ställa?\\n\\nMer i nyhetsbrevet Pausplings trendspaning (länk i första kommentaren)\\n\\n#PaxSilica #AI #Digitalsuveränitet\"}, \"instagram\": {\"text\": \"Sverige har skrivit under Pax Silica, ett initiativ med målet att bryta Kinas AI-dominans. Utrikesminister Maria Malmer Stenergard reste till Texas för att underteckna deklarationen. Enligt Per Axbom är Sverige det andra EU-landet efter Grekland som gjort det.\\n\\nÄven om många svenskar inte känner till det kommer det troligtvis att påverka vår AI- och teknikframtid, och Europas tekniska oberoende. Axbom och fyra andra har skrivit ett öppet brev med kloka frågor till utrikesministern.\\n\\nVilken fråga skulle du ställa? Skriv gärna i kommentarerna.\\n\\nLänk till nyhetsbrevet finns i bion.\\n\\n#PaxSilica #AI #digitalsuveränitet #Sverige #teknikpolitik #EU #geopolitik\", \"visual\": \"Karusell med tre av frågorna från det öppna brevet, en per slide, på beige bakgrund med grön accent.\", \"slides\": [\"Sverige skrev under Pax Silica. Vet du vad det är?\", \"Ett initiativ med målet att bryta Kinas AI-dominans. Sverige är andra EU-landet efter Grekland, enligt Per Axbom.\", \"Öppet brev från Axbom och fyra till: vilka förpliktelser har Sverige åtagit sig?\", \"Hur ska initiativet förhålla sig till EU:s arbete och kommande avtal?\", \"Hur undviker vi inlåsning i enskilda leverantörer och tekniska ekosystem?\", \"Vilken fråga skulle du ställa till utrikesministern?\"]}, \"facebook\": {\"text\": \"Medan vi sov reste utrikesminister Maria Malmer Stenergard till Texas för att skriva under något som heter Pax Silica, ett initiativ vars mål bland annat är att bryta Kinas AI-dominans. Det är nog många svenskar som inte känner till det, trots att det troligtvis kommer att påverka vår gemensamma AI- och teknikframtid, och Europas tekniska oberoende.\\n\\nPer Axbom och fyra andra har skrivit ett öppet brev med frågor, bland annat om vilka förpliktelser Sverige åtagit sig och hur det ska förhålla sig till EU.\\n\\nVi har frågor till utrikesministern, eller hur? Vad skulle ni vilja veta?\"}}";
+function getExample(){return Promise.resolve("\n\nEXEMPEL på ett bra svar (en annan trend, för att visa stil och format):\n"+EXAMPLE)}
+function cleanStr(s){
+  return String(s).replace(/(\d)\s?[–—]\s?(\d)/g,"$1 till $2").replace(/\s[–—]\s/g,", ").replace(/[–—]/g,", ");
+}
+function cleanDeep(o){
+  if(typeof o==="string")return cleanStr(o);
+  if(Array.isArray(o))return o.map(cleanDeep);
+  if(o&&typeof o==="object"){var r={};Object.keys(o).forEach(function(k){r[k]=cleanDeep(o[k])});return r}
+  return o;
+}
+function parseModelJson(t){
+  var s=t.trim().replace(/^```(?:json)?\s*/i,"").replace(/```\s*$/,"");
+  var a=s.indexOf("{"),b=s.lastIndexOf("}");
+  if(a<0||b<a)throw new Error("Svaret innehöll ingen JSON");
+  return JSON.parse(s.slice(a,b+1));
+}
+function sleep(ms){return new Promise(function(r){setTimeout(r,ms)})}
+function callClaude(system,user,attempt){
+  attempt=attempt||0;
+  return fetch("https://api.anthropic.com/v1/messages",{
+    method:"POST",
+    headers:{"content-type":"application/json","x-api-key":getKey(),"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+    body:JSON.stringify({model:MODEL,max_tokens:4000,system:system,messages:[{role:"user",content:user}]})
+  }).then(function(r){
+    if(r.status===401||r.status===403){var e=new Error("API-nyckeln avvisades. Kontrollera nyckeln.");e.fatal=true;throw e}
+    if((r.status===429||r.status>=500)&&attempt<3){return sleep(2500*(attempt+1)).then(function(){return callClaude(system,user,attempt+1)})}
+    if(!r.ok)return r.text().then(function(t){var m="";try{m=JSON.parse(t).error.message}catch(e){}throw new Error("Anthropic svarade "+r.status+(m?": "+m:""))});
+    return r.json();
+  }).then(function(j){return j.content.map(function(c){return c.text||""}).join("")});
+}
+function trendUserMsg(sec){
+  var links=sec.links.slice(0,8);
+  return "NYHETSBREV: "+up.title+" ("+up.date+")\n"+
+  (up.fromPdf?"OBS: texten är utläst ur en PDF där högerkanten kan vara avklippt. Använd bara det som tydligt står, gissa aldrig avklippta siffror, namn eller ord.\n":"")+
+  "\nTRENDEN: "+sec.heading+"\n\n"+sec.text.trim().slice(0,8000)+
+  "\n\nLÄNKAR I AVSNITTET:\n"+(links.length?links.map(function(l,i){return i+": "+l.text+" ("+l.href+")"}).join("\n"):"(inga)");
+}
+function normalizeTrend(r,sec,ix){
+  var posts=[];
+  [["linkedin",r.linkedin],["instagram",r.instagram],["facebook",r.facebook]].forEach(function(pair){
+    var o=pair[1];if(!o||typeof o.text!=="string"||!o.text.trim())throw new Error("Svaret saknar text för "+PLAT[pair[0]].name);
+    var p={platform:pair[0],text:o.text.trim()};
+    if(pair[0]==="instagram"){p.visual=o.visual||r.image||"";p.slides=Array.isArray(o.slides)?o.slides:[]}
+    posts.push(p);
+  });
+  var L=[1,3,6,8,11,13,16,18,21,23],o=L[ix%L.length]+Math.floor(ix/L.length)*25,wd=function(n){return Math.floor(n/5)*7+n%5};
+  var ord={linkedin:o,instagram:o+1,facebook:o+2};
+  var times={linkedin:ix%2?"11:55":"08:15",instagram:"12:00",facebook:"19:00"};
+  posts.forEach(function(p){p.day=wd(ord[p.platform]);p.time=times[p.platform]});
+  var lk=null;
+  if(typeof r.link_index==="number"&&sec.links[r.link_index])lk=sec.links[r.link_index];
+  return {id:"u"+ix,trend:String(r.trend||sec.heading).slice(0,90),source:r.source||"",facts:Array.isArray(r.facts)?r.facts:[],image:r.image||"",link:lk,posts:posts};
+}
+var generating=false;
+function say(id,msg){var e=$(id);e.textContent=msg||"";e.hidden=!msg;if(msg&&id==="up-err"&&e.scrollIntoView)e.scrollIntoView({block:"center",behavior:"smooth"})}
+function setBusy(b){generating=b;$("up-go").disabled=b;$("up-go").textContent=b?"Skapar inlägg…":"Skapa inlägg"}
+function generate(){
+  if(generating)return;
+  var sel=selected();say("up-err","");
+  if(!sel.length){say("up-err","Bocka i minst en trend först.");return}
+  if(!getKey()){
+    var kb=$("key-set");kb.classList.add("flash");kb.scrollIntoView({block:"center",behavior:"smooth"});
+    $("key-err").textContent="Klistra in din API-nyckel här först, sedan tryck på Skapa inlägg igen.";$("key-in").focus();
+    return;
+  }
+  setBusy(true);
+  var done=0,results=new Array(sel.length),failed=[],lastMsg="",fatal=null,next=0;
+  function upd(){say("up-prog","Skapar inlägg: "+done+" av "+sel.length+" trender klara. Det tar ungefär en halv minut.")}
+  upd();
+  getExample().then(function(ex){
+    var system=VOICE+EX_SCHEMA+ex;
+    function worker(){
+      if(fatal||next>=sel.length)return Promise.resolve();
+      var i=next++;
+      return callClaude(system,trendUserMsg(sel[i])).then(function(t){
+        results[i]=normalizeTrend(cleanDeep(parseModelJson(t)),sel[i],i);
+      }).catch(function(e){if(e.fatal)fatal=e;else{failed.push(sel[i].heading);lastMsg=(e&&e.message)||String(e)}}).then(function(){done++;upd();return worker()});
+    }
+    return Promise.all([worker(),worker(),worker()]);
+  }).then(function(){
+    setBusy(false);say("up-prog","");
+    if(fatal){say("up-err",fatal.message);return}
+    var items=results.filter(Boolean);
+    items.forEach(function(it,k){it.id="u"+k});
+    if(!items.length){say("up-err","Inga inlägg kunde skapas. Felet var: "+(lastMsg||"okänt")+(/Failed to fetch|NetworkError|Load failed/i.test(lastMsg)?" (kolla internetanslutningen, eller om en brandvägg eller ett tillägg blockerar api.anthropic.com)":""));return}
+    var d={id:"u"+Date.now().toString(36),date:up.date,subject:up.title,label:up.title.slice(0,70),summary:"Inlägg skapade från uppladdat nyhetsbrev.",items:items,custom:true};
+    var all=loadCustom();all.push(d);saveCustom(all);renderPicker();selectNewsletter(d.id);
+    if(failed.length)toast(failed.length+" trender kunde inte skapas, försök igen med dem");
+  }).catch(function(e){setBusy(false);say("up-prog","");say("up-err","Något gick fel: "+e.message)});
+}
+$("up-go").addEventListener("click",generate);
+renderKey();
+
+$("del-custom").addEventListener("click",function(){
+  if(!state.cur||!state.cur.custom)return;
+  if(!window.confirm("Ta bort det här uppladdade brevet och dess inlägg från den här webbläsaren?"))return;
+  saveCustom(loadCustom().filter(function(d){return d.id!==state.cur.id}));
+  state.cur=null;state.posts=[];$("results").hidden=true;renderPicker();toast("Borttaget");
+});
+
+/* ---------- boot ---------- */
+renderPicker();
+})();
+</script>
+</body>
+</html>
