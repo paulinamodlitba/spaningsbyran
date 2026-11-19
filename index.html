@@ -397,7 +397,11 @@ function selectNewsletter(id){
 function renderMeta(){
   var d=state.cur;
   var fn=$("failnote");
-  if(d.failed&&d.failed.list.length){fn.hidden=false;fn.textContent="Det gick inte att skapa inlägg för: "+d.failed.list.join("; ")+". Orsak: "+(d.failed.why||"okänd")+". Ladda upp brevet igen och bocka bara i dessa."}else fn.hidden=true;
+  if(d.failed&&d.failed.list.length){
+    fn.hidden=false;fn.textContent="";
+    fn.appendChild(el("span",{text:"Det gick inte att skapa inlägg för "+d.failed.list.length+" trender: "+d.failed.list.join("; ")+". Orsak: "+(d.failed.why||"okänd")+". "}));
+    fn.appendChild(el("button",{class:"btn small primary",type:"button",onclick:retryFailed},["Försök igen med dessa"]));
+  }else fn.hidden=true;
   $("del-custom").hidden=!d.custom;
   $("m-date").textContent="Utskick "+fmtLong(d.date);
   $("m-subject").textContent=d.subject;
@@ -677,7 +681,7 @@ function loadPdfJs(){
     document.head.appendChild(s);
   });
 }
-var NOISE=[/^\d{4}-\d{2}-\d{2},? \d{2}:\d{2}/,/https?:\/\/\S+\s+\d+\/\d+\s*$/,/^\s*\d+\/\d+\s*$/,/^(share|like|comment|restack|subscribe)$/i,/^[\d\s]+(share)?$/i];
+var NOISE=[/^Paulinas Substack/i,/^\d{4}-\d{2}-\d{2},? \d{2}:\d{2}/,/https?:\/\/\S+\s+\d+\/\d+\s*$/,/^\s*\d+\/\d+\s*$/,/^(share|like|comment|restack|subscribe)$/i,/^[\d\s]+(share)?$/i];
 async function parsePdf(buf){
   var lib=await loadPdfJs();
   var doc=await lib.getDocument({data:buf}).promise;
@@ -764,8 +768,21 @@ function expandTidbits(secs){
   });
   return out;
 }
+function mergeContinuations(secs){
+  var out=[];
+  secs.forEach(function(sec){
+    var m=sec.heading.match(/^(.*?)\s*\(forts[^)]*\)\s*$/i);
+    if(m){
+      var base=out.filter(function(o){return o.heading===m[1].trim()})[0];
+      if(base){base.text+="\n"+sec.text;base.links=base.links.concat(sec.links.filter(function(l){return !base.links.some(function(x){return x.href===l.href})}));base.paras=(base.paras||[]).concat(sec.paras||[]);return}
+    }
+    if(/^allt du någonsin behöver/i.test(sec.heading))sec.heading="Inledning";
+    out.push(sec);
+  });
+  return out;
+}
 function showParsed(){
-  up.sections=expandTidbits(up.sections);
+  up.sections=expandTidbits(mergeContinuations(up.sections));
   if(!up.sections.length)throw new Error("Hittade ingen text i filen");
   $("up-meta").textContent="\""+up.title+"\" · "+fmtLong(up.date)+" · "+up.sections.length+" avsnitt hittades. Bocka ur sådant som inte är en trend, som kursinfo eller hälsningar."+(up.fromPdf?" Texten kommer från en PDF, så rubrikerna är gissade utifrån typsnittsstorlek. Kolla att listan stämmer.":"");
   renderSections();$("up-step2").hidden=false;
@@ -823,6 +840,7 @@ function parseModelJson(t){
   return JSON.parse(s.slice(a,b+1));
 }
 function sleep(ms){return new Promise(function(r){setTimeout(r,ms)})}
+var onWait=function(){};
 function callClaude(system,user,attempt){
   attempt=attempt||0;
   return fetch("https://api.anthropic.com/v1/messages",{
@@ -831,15 +849,19 @@ function callClaude(system,user,attempt){
     body:JSON.stringify({model:MODEL,max_tokens:4000,system:system,messages:[{role:"user",content:user}]})
   }).then(function(r){
     if(r.status===401||r.status===403){var e=new Error("API-nyckeln avvisades. Kontrollera nyckeln.");e.fatal=true;throw e}
-    if((r.status===429||r.status>=500)&&attempt<3){return sleep(2500*(attempt+1)).then(function(){return callClaude(system,user,attempt+1)})}
+    if((r.status===429||r.status===529||r.status>=500)&&attempt<5){
+      var ra=parseFloat(r.headers.get("retry-after"))||0,wait=Math.min(60,Math.max(ra,4*(attempt+1)));
+      onWait(Math.round(wait));
+      return sleep(wait*1000).then(function(){return callClaude(system,user,attempt+1)});
+    }
     if(!r.ok)return r.text().then(function(t){var m="";try{m=JSON.parse(t).error.message}catch(e){}throw new Error("Anthropic svarade "+r.status+(m?": "+m:""))});
     return r.json();
   }).then(function(j){return j.content.map(function(c){return c.text||""}).join("")});
 }
-function trendUserMsg(sec){
+function trendUserMsg(sec,ctx){
   var links=sec.links.slice(0,8);
-  return "NYHETSBREV: "+up.title+" ("+up.date+")\n"+
-  (up.fromPdf?"OBS: texten är utläst ur en PDF där högerkanten kan vara avklippt. Använd bara det som tydligt står, gissa aldrig avklippta siffror, namn eller ord.\n":"")+
+  return "NYHETSBREV: "+ctx.title+" ("+ctx.date+")\n"+
+  (ctx.fromPdf?"OBS: texten är utläst ur en PDF där högerkanten kan vara avklippt. Använd bara det som tydligt står, gissa aldrig avklippta siffror, namn eller ord.\n":"")+
   "\nTRENDEN: "+sec.heading+"\n\n"+sec.text.trim().slice(0,8000)+
   "\n\nLÄNKAR I AVSNITTET:\n"+(links.length?links.map(function(l,i){return i+": "+l.text+" ("+l.href+")"}).join("\n"):"(inga)");
 }
@@ -862,38 +884,69 @@ function normalizeTrend(r,sec,ix){
 var generating=false;
 function say(id,msg){var e=$(id);e.textContent=msg||"";e.hidden=!msg;if(msg&&id==="up-err"&&e.scrollIntoView)e.scrollIntoView({block:"center",behavior:"smooth"})}
 function setBusy(b){generating=b;$("up-go").disabled=b;$("up-go").textContent=b?"Skapar inlägg…":"Skapa inlägg"}
+function needKey(){
+  if(getKey())return false;
+  var kb=$("key-set");kb.classList.add("flash");kb.scrollIntoView({block:"center",behavior:"smooth"});
+  $("key-err").textContent="Klistra in din API-nyckel här först, sedan tryck på Skapa inlägg igen.";$("key-in").focus();
+  return true;
+}
+/* kör trenderna två i taget, väntar ut hastighetsgränser och försöker en gång till om svaret inte gick att tolka */
+function runTrends(secs,startIx,ctx,progress){
+  var done=0,results=new Array(secs.length),failed=[],lastMsg="",fatal=null,next=0;
+  function upd(extra){progress("Skapar inlägg: "+done+" av "+secs.length+" trender klara."+(extra||" Det tar ungefär en minut."))}
+  onWait=function(sec){upd(" Anthropic ber oss vänta, fortsätter om "+sec+" sekunder.")};
+  upd();
+  return getExample().then(function(ex){
+    var system=VOICE+EX_SCHEMA+ex;
+    function one(i){
+      return callClaude(system,trendUserMsg(secs[i],ctx)).then(function(t){
+        return normalizeTrend(cleanDeep(parseModelJson(t)),secs[i],startIx+i);
+      });
+    }
+    function worker(){
+      if(fatal||next>=secs.length)return Promise.resolve();
+      var i=next++;
+      return one(i).catch(function(e){return e.fatal?Promise.reject(e):one(i)}).then(function(r){results[i]=r}).catch(function(e){
+        if(e.fatal)fatal=e;else{failed.push(secs[i]);lastMsg=(e&&e.message)||String(e)}
+      }).then(function(){done++;upd();return worker()});
+    }
+    return Promise.all([worker(),worker()]);
+  }).then(function(){onWait=function(){};return {items:results.filter(Boolean),failed:failed,why:lastMsg,fatal:fatal}});
+}
+function failInfo(failed,why){
+  return failed.length?{list:failed.map(function(f){return f.heading}),why:why,sections:failed.map(function(f){return {heading:f.heading,text:f.text,links:f.links,paras:[]}})}:null;
+}
 function generate(){
   if(generating)return;
   var sel=selected();say("up-err","");
   if(!sel.length){say("up-err","Bocka i minst en trend först.");return}
-  if(!getKey()){
-    var kb=$("key-set");kb.classList.add("flash");kb.scrollIntoView({block:"center",behavior:"smooth"});
-    $("key-err").textContent="Klistra in din API-nyckel här först, sedan tryck på Skapa inlägg igen.";$("key-in").focus();
-    return;
-  }
+  if(needKey())return;
   setBusy(true);
-  var done=0,results=new Array(sel.length),failed=[],lastMsg="",fatal=null,next=0;
-  function upd(){say("up-prog","Skapar inlägg: "+done+" av "+sel.length+" trender klara. Det tar ungefär en halv minut.")}
-  upd();
-  getExample().then(function(ex){
-    var system=VOICE+EX_SCHEMA+ex;
-    function worker(){
-      if(fatal||next>=sel.length)return Promise.resolve();
-      var i=next++;
-      return callClaude(system,trendUserMsg(sel[i])).then(function(t){
-        results[i]=normalizeTrend(cleanDeep(parseModelJson(t)),sel[i],i);
-      }).catch(function(e){if(e.fatal)fatal=e;else{failed.push(sel[i].heading);lastMsg=(e&&e.message)||String(e)}}).then(function(){done++;upd();return worker()});
-    }
-    return Promise.all([worker(),worker(),worker()]);
-  }).then(function(){
+  var ctx={title:up.title,date:up.date,fromPdf:!!up.fromPdf};
+  runTrends(sel,0,ctx,function(m){say("up-prog",m)}).then(function(r){
     setBusy(false);say("up-prog","");
-    if(fatal){say("up-err",fatal.message);return}
-    var items=results.filter(Boolean);
-    items.forEach(function(it,k){it.id="u"+k});
-    if(!items.length){say("up-err","Inga inlägg kunde skapas. Felet var: "+(lastMsg||"okänt")+(/Failed to fetch|NetworkError|Load failed/i.test(lastMsg)?" (kolla internetanslutningen, eller om en brandvägg eller ett tillägg blockerar api.anthropic.com)":""));return}
-    var d={id:"u"+Date.now().toString(36),date:up.date,subject:up.title,label:up.title.slice(0,70),summary:"Inlägg skapade från uppladdat nyhetsbrev.",items:items,custom:true,failed:failed.length?{list:failed,why:lastMsg}:null};
+    if(r.fatal){say("up-err",r.fatal.message);return}
+    r.items.forEach(function(it,k){it.id="u"+k});
+    if(!r.items.length){say("up-err","Inga inlägg kunde skapas. Felet var: "+(r.why||"okänt")+(/Failed to fetch|NetworkError|Load failed/i.test(r.why)?" (kolla internetanslutningen, eller om en brandvägg eller ett tillägg blockerar api.anthropic.com)":""));return}
+    var d={id:"u"+Date.now().toString(36),date:up.date,subject:up.title,label:up.title.slice(0,70),summary:"Inlägg skapade från uppladdat nyhetsbrev.",items:r.items,custom:true,ctx:ctx,failed:failInfo(r.failed,r.why)};
     var all=loadCustom();all.push(d);saveCustom(all);renderPicker();selectNewsletter(d.id);
   }).catch(function(e){setBusy(false);say("up-prog","");say("up-err","Något gick fel: "+e.message)});
+}
+function retryFailed(){
+  var d=state.cur;if(!d||!d.failed||generating)return;
+  if(needKey())return;
+  generating=true;
+  var note=$("failnote");
+  runTrends(d.failed.sections,d.items.length,d.ctx||{title:d.subject,date:d.date,fromPdf:true},function(m){note.textContent=m}).then(function(r){
+    generating=false;
+    if(r.fatal){note.textContent=r.fatal.message;return}
+    var all=loadCustom().map(function(x){
+      if(x.id!==d.id)return x;
+      x.items=x.items.concat(r.items);x.items.forEach(function(it,k){it.id="u"+k});
+      x.failed=failInfo(r.failed,r.why);return x;
+    });
+    saveCustom(all);selectNewsletter(d.id);
+  }).catch(function(e){generating=false;note.textContent="Något gick fel: "+e.message});
 }
 $("up-go").addEventListener("click",generate);
 renderKey();
